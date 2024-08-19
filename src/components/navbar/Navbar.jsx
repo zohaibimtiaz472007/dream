@@ -5,7 +5,7 @@ import { FaShoppingCart, FaUser, FaSignInAlt, FaSignOutAlt } from 'react-icons/f
 import logo from './logo.png';
 
 const Navbar = () => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(localStorage.getItem('users'));
   const cartItems = useSelector((state) => state.cart);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
