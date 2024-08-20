@@ -1,13 +1,12 @@
 import { useDispatch, useSelector } from "react-redux";
 import Layout from "../../components/layout/Layout";
-import { Trash } from 'lucide-react'
+import { Trash } from 'lucide-react';
 import { decrementQuantity, deleteFromCart, incrementQuantity } from "../../redux/cartSlice";
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import { Timestamp, addDoc, collection } from "firebase/firestore";
 import { fireDB } from "../../firebase/FirebaseConfig";
 import BuyNowModal from "../../components/buyNowModal/BuyNowModal";
-import { Navigate } from "react-router";
 
 const CartPage = () => {
     const cartItems = useSelector((state) => state.cart);
@@ -15,8 +14,8 @@ const CartPage = () => {
 
     const deleteCart = (item) => {
         dispatch(deleteFromCart(item));
-        toast.success("Delete cart")
-    }
+        toast.success("Delete cart");
+    };
 
     const handleIncrement = (id) => {
         dispatch(incrementQuantity(id));
@@ -26,19 +25,13 @@ const CartPage = () => {
         dispatch(decrementQuantity(id));
     };
 
-    // const cartQuantity = cartItems.length;
-
     const cartItemTotal = cartItems.map(item => item.quantity).reduce((prevValue, currValue) => prevValue + currValue, 0);
 
     const cartTotal = cartItems.map(item => item.price * item.quantity).reduce((prevValue, currValue) => prevValue + currValue, 0);
 
-
     useEffect(() => {
         localStorage.setItem('cart', JSON.stringify(cartItems));
-    }, [cartItems])
-
-    // user
-    const user = JSON.parse(localStorage.getItem('users'))
+    }, [cartItems]);
 
     // Buy Now Function
     const [addressInfo, setAddressInfo] = useState({
@@ -60,15 +53,15 @@ const CartPage = () => {
     const buyNowFunction = () => {
         // validation 
         if (addressInfo.name === "" || addressInfo.address === "" || addressInfo.pincode === "" || addressInfo.mobileNumber === "") {
-            return toast.error("All Fields are required")
+            return toast.error("All Fields are required");
         }
 
         // Order Info 
         const orderInfo = {
             cartItems,
             addressInfo,
-            email: user.email,
-            userid: user.uid,
+            email: "guest@noemail.com", // Use a placeholder email for guest users
+            userid: "guest", // Use a placeholder ID for guest users
             status: "confirmed",
             time: Timestamp.now(),
             date: new Date().toLocaleString(
@@ -79,7 +72,7 @@ const CartPage = () => {
                     year: "numeric",
                 }
             )
-        }
+        };
         try {
             const orderRef = collection(fireDB, 'order');
             addDoc(orderRef, orderInfo);
@@ -88,13 +81,13 @@ const CartPage = () => {
                 address: "",
                 pincode: "",
                 mobileNumber: "",
-            })
-            toast.success("Order Placed Successfull")
+            });
+            toast.success("Order Placed Successfully");
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
+    };
 
-    }
     return (
         <Layout>
             <div className="container mx-auto px-4 max-w-7xl lg:px-0">
@@ -112,7 +105,7 @@ const CartPage = () => {
 
                                     <>
                                         {cartItems.map((item, index) => {
-                                            const { id, title, price, productImageUrl, quantity, category } = item
+                                            const { id, title, price, productImageUrl, quantity, category } = item;
                                             return (
                                                 <div key={index} className="">
                                                     <li className="flex py-6 sm:py-6 ">
@@ -155,6 +148,7 @@ const CartPage = () => {
                                                                 type="text"
                                                                 className="mx-1 h-7 w-9 rounded-md border text-center"
                                                                 value={quantity}
+                                                                readOnly
                                                             />
                                                             <button onClick={() => handleIncrement(id)} type="button" className="flex h-7 w-7 items-center justify-center">
                                                                 +
@@ -168,7 +162,7 @@ const CartPage = () => {
                                                         </div>
                                                     </div>
                                                 </div>
-                                            )
+                                            );
                                         })}
                                     </>
                                     :
@@ -206,13 +200,11 @@ const CartPage = () => {
                                 </dl>
                                 <div className="px-2 pb-4 font-medium text-green-700">
                                     <div className="flex gap-4 mb-6">
-                                        {user
-                                            ? <BuyNowModal
-                                                addressInfo={addressInfo}
-                                                setAddressInfo={setAddressInfo}
-                                                buyNowFunction={buyNowFunction}
-                                            /> : <Navigate to={'/login'}/>
-                                        }
+                                        <BuyNowModal
+                                            addressInfo={addressInfo}
+                                            setAddressInfo={setAddressInfo}
+                                            buyNowFunction={buyNowFunction}
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -225,5 +217,3 @@ const CartPage = () => {
 }
 
 export default CartPage;
-
-
